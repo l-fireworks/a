@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        img{
+            width: 100px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
+    <script src="../node_modules/vue/dist/vue.js"></script> -->
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>类别</th>
+                        <th>型号</th>
+                        <th>价格</th>
+                        <th>数量</th>
+                        <th>小计</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(good,idx) of goods">
+                        <td>
+                            <input type="checkbox" v-model="good.ischeck">
+                        </td>
+                        <td>{{ good.goodsname }}</td>
+                        <td>{{ good.style }}</td>
+                        <td>{{ good.goodsprice |formatPrice(2) }}</td>
+                        <td>
+                            <button class="btn" @click="down(idx)">-</button>
+                            [ {{ good.num }} ]
+                            <button class="btn" @click="up(idx)">+</button>
+                        </td>
+                        <td>{{ good.goodsprice * good.num |formatPrice(2) }}</td>
+                    
+                    </tr>
+                    <tr>
+                        
+                        <!-- :类型显示 -->
+                        <td><label>型号</label></td>
+                        <td colspan="6">{{ style }}</td>
+                    </tr>
+                    <tr>
+                        
+                        <!-- :checked="checkAll" -->
+                        <td><label><input type="checkbox" v-model="checkAll" @click="ckAll"> {{ checkAll ? "反选" : "全选" }} </label></td>
+                        <td colspan="6">商品总价格：{{ totalPrice | formatPrice }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    <script>
+        //定义全局过滤器，让所有从这里开始向下的示例都可以使用
+        Vue.filter("formatPrice",(val,n=1)=>{
+            return '￥ '+ val.toFixed(n) +' 元';
+        })
+ 
+        new Vue({
+            el:'#app',
+            data:{
+                checkAll:false,
+                goods:[
+                    {
+                        goodsname:'男士',
+                        style: 'N034',
+                        goodsprice:15.00,
+                        num:1,
+                        ischeck:false
+                    },
+                    {
+                        goodsname:'女士',
+                        style:'V035',
+                        goodsprice:15.00,
+                        num:2,
+                        ischeck:false
+                    },
+                    {
+                        goodsname:'儿童',
+                        style:'E036',
+                        goodsprice:7.00,
+                        num:3,
+                        ischeck:false
+                    },
+                 
+                ],
+            
+            },
+            methods:{//自定义方法
+                //删除
+                // del(id){
+                //     this.goods.splice(id,1);
+                // },
+                //全选/反选
+                ckAll(){
+                    console.log(this.checkAll);
+                    this.goods.map(item=>{
+                        item.ischeck = !this.checkAll;
+                    })
+                },
+                //+
+                up(id){
+                    if(this.goods[id].num >= 99){
+                        alert("商品最多"+this.goods[id].num+"件");
+                        return false;
+                    }
+                    this.goods[id].num++;
+
+                },
+                //-
+                down(id){
+                    if(this.goods[id].num <= 1){
+                        alert("商品最少"+this.goods[id].num+"件");
+                        return false;
+                    }
+                    this.goods[id].num--;
+                }
+            },
+            filters:{//局部 过滤器
+                // formatPrice(val,n=1){
+                //     return '￥ '+ val.toFixed(n) +' 元';
+                // }
+            },
+            watch:{//监听
+                // 使用同一个变量 会发生冲突 用点击事件解决
+                // checkAll(){
+                //     // 监听全选状态
+                //     this.goods.map(item=>{
+                //         item.ischeck = this.checkAll;
+                //     })
+                // }
+            },
+            computed:{//计算
+                totalPrice(){
+                    // this.goods.reduce((sum,item)=>{
+                    //     if(item.ischeck){
+                    //         return sum += item.goodsprice * item.num;
+                    //     }
+                    // },0);
+ 
+                    let sum = 0;
+                    //遍历数组计算
+                    this.goods.map(item=>{
+                        if(item.ischeck){
+                            sum += item.goodsprice * item.num;
+                        }
+                    });
+                    // 当数组的所有元素都为true时，才为true
+                    this.checkAll = this.goods.every(item=>{
+                        return item.ischeck;
+                    })
+                    return sum;
+                }
+            }
+        })
+    </script>
+</body>
+</html>
